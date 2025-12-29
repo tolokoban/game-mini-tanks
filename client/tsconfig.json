@@ -2,7 +2,7 @@
     "compilerOptions": {
         "alwaysStrict": false,
         "allowSyntheticDefaultImports": true,
-        "baseUrl": "./src/",
+        "baseUrl": "client/src",
         "composite": false,
         "declaration": true,
         "declarationMap": true,
@@ -12,7 +12,7 @@
         "extendedDiagnostics": false,
         "incremental": false,
         "jsx": "react-jsx",
-        "lib": ["dom", "dom.iterable", "ES2015"],
+        "lib": ["dom", "dom.iterable", "ES2022.Array"],
         "module": "esnext",
         "moduleResolution": "node",
         "noImplicitAny": true,
@@ -21,7 +21,7 @@
         "outDir": "./dist/",
         "paths": {
             "@/*": ["*"],
-            "*": ["src/*", "node_modules/*"]
+            "*": ["client/src/*", "node_modules/*"]
         },
         "preserveWatchOutput": false,
         "removeComments": true,
@@ -34,19 +34,19 @@
         "target": "ES2020"
     },
     "output": ["./dist"],
-    "files": ["src/index.tsx"],
+    "files": ["client/src/index.tsx"],
     "include": [
-        "./src/**/*.mdx",
-        "./src/**/*.ts",
-        "./src/**/*.tsx",
-        "./src/**/*.css",
-        "./src/**/*.svg",
-        "./src/**/*.png",
-        "./src/**/*.jpg",
-        "./src/**/*.jpeg",
-        "./src/**/*.gif",
-        "./src/**/*.webp"
-    ],
+        "client/src/**/*.mdx",
+        "client/src/**/*.ts",
+        "client/src/**/*.tsx",
+        "client/src/**/*.css",
+        "client/src/**/*.svg",
+        "client/src/**/*.png",
+        "client/src/**/*.jpg",
+        "client/src/**/*.jpeg",
+        "client/src/**/*.gif",
+        "client/src/**/*.webp"
+, "server/main.ts"    ],
     "exclude": [
         "_backup_/",
         "node_modules/",
