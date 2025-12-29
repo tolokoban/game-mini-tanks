@@ -18,14 +18,20 @@ export * from "./types"
 
 
 const Page0 = React.lazy(() => import("./page"))
+const Page2 = React.lazy(() => import("./player/[id]/page"))
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function App({ lang }: { lang?: string }) {
     const context = useRouteContext()
     const fb = <div>Loading...</div>
     const pg0 = Page0
+    const pg2 = Page2
     return (
-        <Route path="/" Page={pg0} fallback={fb} context={context}/>
+        <Route path="/" Page={pg0} fallback={fb} context={context}>
+            <Route path="/player" fallback={fb} context={context}>
+                <Route path="/player/[id]" Page={pg2} fallback={fb} context={context}/>
+            </Route>
+        </Route>
     )
 }
 

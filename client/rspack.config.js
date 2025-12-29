@@ -1,23 +1,14 @@
-import Package from "./package.json" with { "type": "json" }
+import Package from "./package.json" with { type: "json" }
 import Path from "path"
 import FS from "fs"
-import HtmlWebpackPlugin from "html-webpack-plugin"
-import CopyPlugin from "copy-webpack-plugin"
 import { CleanWebpackPlugin } from "clean-webpack-plugin"
-import remarkImages from "remark-images"
-import remarkEmoji from "remark-emoji"
-import remarkGfm from "remark-gfm"
-import rehypeHighlight from "rehype-highlight"
-import rehypeHighlightCodeLines from "rehype-highlight-code-lines"
-import highlightJs from "highlight.js"
 import WebpackShellPluginNext from "webpack-shell-plugin-next"
-import MiniCssExtractPlugin from "mini-css-extract-plugin"
-import Webpack from "webpack"
+import Rspack from "@rspack/core"
 import path from "path"
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname)
 
-export default env => {
+export default (env) => {
     if (typeof Package.port !== "number") {
         // Define a random port number for dev server.
         Package.port = 1204 + Math.floor(Math.random() * (0xffff - 1024))
@@ -36,11 +27,13 @@ export default env => {
     }
     return {
         cache: false,
-        // cache: {
-        //     type: "memory",
-        // },
         output: {
-            filename: "scr/[name].[contenthash].js",
+            filename: (pathData) => {
+                const { name } = pathData.chunk
+                return name === "main"
+                    ? "main.js"
+                    : "scr/[name].[contenthash].js"
+            },
             path: Path.resolve(__dirname, "build"),
             devtoolModuleFilenameTemplate: "[absolute-resource-path]",
         },
@@ -49,6 +42,8 @@ export default env => {
         },
         entry: {
             app: "./src/index.tsx",
+            // This file starts NodeWebkit
+            main: "./src/main.ts",
         },
         target: "web",
         resolve: {
@@ -78,62 +73,53 @@ export default env => {
             server: "http",
         },
         stats: {
+            children: true,
             colors: true,
             errorDetails: false,
         },
         plugins: [
-            new Webpack.ProgressPlugin(),
+            new Rspack.ProgressPlugin(),
             new WebpackShellPluginNext({
-                onBeforeCompile:{
-                  scripts: ['npm run generate'],
-                  blocking: true,
-                  parallel: false
+                onBeforeCompile: {
+                    scripts: ["npm run generate"],
+                    blocking: true,
+                    parallel: false,
                 },
-              }),
-            // // List of the needed files for later caching.
-            // new WebpackManifestPlugin({
-            //     filter: (file) => {
-            //         if (file.name.endsWith(".map")) return false
-            //         if (file.name.endsWith(".ts")) return false
-            //         return true
-            //     },
-            // }),
+            }),
             new CleanWebpackPlugin({
                 // We don't want to remove the "index.html" file
                 // after the incremental build triggered by watch.
                 cleanStaleWebpackAssets: false,
             }),
-            new CopyPlugin({
+            new Rspack.CopyRspackPlugin({
                 patterns: [
                     {
-                        from: Path.resolve(__dirname, "public"),
-                        filter: async path => {
-                            // Allow non-root index.html to be copied verbatim.
-                            return !path.endsWith("/public/index.html")
-                        },
+                        from: Path.resolve(__dirname, "package.json"),
+                        noErrorOnMissing: true,
+                    },
+                    {
+                        from: Path.resolve(__dirname, "favicon.ico"),
+                        noErrorOnMissing: true,
                     },
                 ],
             }),
-            new HtmlWebpackPlugin({
+            new Rspack.HtmlRspackPlugin({
                 template: "public/index.html",
                 filename: "index.html",
-                version: Package.version,
-                title: "Tolokoban",
-                minify: {
-                    collapseInlineTagWhitespace: isProdMode,
-                    collapseWhitespace: isProdMode,
-                    decodeEntities: isProdMode,
-                    minifyCSS: isProdMode,
-                    removeComments: isProdMode,
+                templateParameters: {
+                    version: Package.version,
+                    title: "Mini-Tanks",
                 },
+                excludeChunks: ["main"],
+                minify: isProdMode,
             }),
-            new MiniCssExtractPlugin(),
+            new Rspack.CssExtractRspackPlugin(),
         ],
         performance: {
             hints: "warning",
             maxAssetSize: 300000,
             maxEntrypointSize: 200000,
-            assetFilter: filename => {
+            assetFilter: (filename) => {
                 // PNG are just fallbacks for WEBP images.
                 if (filename.endsWith(".png")) return false
                 if (filename.endsWith(".map")) return false
@@ -173,14 +159,6 @@ export default env => {
                     ],
                     exclude: /node_modules/,
                 },
-                // {
-                //     test: /\.tsx?$/,
-                //     loader: "esbuild-loader",
-                //     options: {
-                //       loader: "tsx", // Or 'ts' if you don't need tsx
-                //       target: "es2015",
-                //     },
-                // },          
                 {
                     test: /\.(png|jpe?g|gif|webp|avif|svg)$/i,
                     // More information here https://webpack.js.org/guides/asset-modules/
@@ -218,13 +196,10 @@ export default env => {
                 {
                     test: /\.css$/,
                     use: [
-                        // {
-                        //     loader: "style-loader",
-                        //     options: {
-                        //         injectType: "styleTag",
-                        //     },
-                        // },
-                        { loader: MiniCssExtractPlugin.loader, options: {} },
+                        {
+                            loader: Rspack.CssExtractRspackPlugin.loader,
+                            options: {},
+                        },
                         {
                             loader: "css-loader",
                             options: {
@@ -239,28 +214,6 @@ export default env => {
                         },
                     ],
                 },
-                // If you need MDX:
-                // {
-                //     test: /\.mdx?$/,
-                //     use: [
-                //         // `babel-loader` is optional:
-                //         { loader: "babel-loader", options: {} },
-                //         {
-                //             loader: "@mdx-js/loader",
-                //             /** @type {import('@mdx-js/loader').Options} */
-                //             options: {
-                //                 rehypePlugins: [[rehypeHighlight, {
-                //                     languages: {
-                //                         ts: ()=>highlightJs.getLanguage("ts"),
-                //                         glsl: ()=>highlightJs.getLanguage("glsl"),
-                //                     }
-                //                 }], rehypeHighlightCodeLines],
-                //                 remarkPlugins: [remarkImages, remarkEmoji, remarkGfm],
-                //                 providerImportSource: "@mdx-js/react",
-                //             },
-                //         },
-                //     ],
-                // },
             ],
         },
     }

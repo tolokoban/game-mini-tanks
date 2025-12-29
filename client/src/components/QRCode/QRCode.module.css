@@ -1,0 +1,16 @@
+.qRCode {
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.5em;
+
+    > canvas {
+        width: 50vmin;
+        height: 50vmin;
+        background-color: #fff;
+        border-radius: 3vmin;
+        box-shadow: 0 5vmin 10vmin #0008;
+    }
+}
