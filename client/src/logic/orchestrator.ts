@@ -74,6 +74,7 @@ class Orchestrator {
             dir: (segment.dir + 1) % Orchestrator.DIRECTIONS.length,
             length: 0,
         })
+        return true
     }
 
     turnLeft(id: number) {
@@ -85,6 +86,7 @@ class Orchestrator {
             dir: (segment.dir + 3) % Orchestrator.DIRECTIONS.length,
             length: 0,
         })
+        return true
     }
 
     getSegments(): Readonly<Map<number, Segment[]>> {
@@ -100,8 +102,12 @@ class Orchestrator {
         const { dir } = segment
         if (dir === 0 || dir === 2) {
             // Vertical segment
+            const x = getGridIndex(segment.x)
+            this.gridX[x].add(segment)
         } else {
             // Horizontal segment
+            const y = getGridIndex(segment.y)
+            this.gridY[y].add(segment)
         }
     }
 

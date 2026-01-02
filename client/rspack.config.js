@@ -28,12 +28,7 @@ export default (env) => {
     return {
         cache: false,
         output: {
-            filename: (pathData) => {
-                const { name } = pathData.chunk
-                return name === "main"
-                    ? "main.js"
-                    : "scr/[name].[contenthash].js"
-            },
+            filename: "scr/[name].[contenthash].js",
             path: Path.resolve(__dirname, "build"),
             devtoolModuleFilenameTemplate: "[absolute-resource-path]",
         },
@@ -41,9 +36,7 @@ export default (env) => {
             aggregateTimeout: 600,
         },
         entry: {
-            app: "./src/index.tsx",
-            // This file starts NodeWebkit
-            main: "./src/main.ts",
+            app: "./src/index.tsx"
         },
         target: "web",
         resolve: {
@@ -110,7 +103,6 @@ export default (env) => {
                     version: Package.version,
                     title: "Mini-Tanks",
                 },
-                excludeChunks: ["main"],
                 minify: isProdMode,
             }),
             new Rspack.CssExtractRspackPlugin(),
