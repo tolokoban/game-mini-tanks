@@ -6,11 +6,17 @@
     align-items: center;
     gap: 0.5em;
 
-    > canvas {
-        width: 50vmin;
-        height: 50vmin;
-        background-color: #fff;
-        border-radius: 3vmin;
-        box-shadow: 0 5vmin 10vmin #0008;
+    > a {
+        border: none;
+        padding: 0;
+        margin: 0;
+
+        > canvas {
+            width: 50vmin;
+            height: 50vmin;
+            background-color: #fff;
+            border-radius: 3vmin;
+            box-shadow: 0 5vmin 10vmin #0008;
+        }
     }
 }

@@ -10,6 +10,9 @@ export default function Page() {
     const handleJoinTheGame = React.useCallback(() => {
         socket.send("join", { id, name })
     }, [id, name])
+    React.useEffect(() => {
+        socket.send("join", { id, name: "" })
+    }, [])
 
     return (
         <div>
